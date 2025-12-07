@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EZ DROPP — Buy & Sell</title>
+  <style>
+    :root{
+      --bg:#0e0f12;
+      --bg-2:#121317;
+      --bg-3:#1a1b21;
+      --text:#e6e6e9;
+      --muted:#b5b5bb;
+      --accent:#6c8cff;        /* Advanced cool accent */
+      --accent-2:#28c76f;      /* Success green */
+      --danger:#ff5d5d;        /* Error red */
+      --border:#2a2c34;
+      --card:#14151a;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      background: radial-gradient(1000px 500px at 80% -20%, rgba(108,140,255,.15), transparent 60%), var(--bg);
+      color:var(--text);
+    }
+    a{color:var(--accent);text-decoration:none}
+    img{max-width:100%;display:block}
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    header{
+      position:sticky;top:0;z-index:20;
+      backdrop-filter:saturate(160%) blur(8px);
+      background:linear-gradient(0deg, rgba(20,21,26,.85), rgba(20,21,26,.65));
+      border-bottom:1px solid var(--border);
+    }
+    .nav{
+      display:flex;align-items:center;gap:16px;justify-content:space-between;
+      padding:14px 24px;
+    }
+    .brand{
+      display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:.5px
+    }
+    .logo{
+      width:40px;height:40px;border-radius:10px;
+      background: conic-gradient(from 210deg, #0e0f12, #2a2c34, #0e0f12);
+      box-shadow: inset 0 0 0 2px #2a2c34, 0 8px 18px rgba(0,0,0,.45);
+      position:relative;overflow:hidden;
+    }
+    .logo::after{
+      content:"";position:absolute;inset:8px;
+      background: radial-gradient(120px 60px at 30% 30%, #6c8cff55, transparent 60%);
+      border-radius:8px;
+    }
+    .nav-actions{display:flex;align-items:center;gap:12px}
+    .btn{
+      appearance:none;border:1px solid var(--border);
+      background:linear-gradient(180deg, var(--bg-3), var(--card));
+      color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;
+      transition:.2s box-shadow,.2s transform,.2s border-color,.2s background-color;
+    }
+    .btn:hover{box-shadow:0 6px 18px rgba(0,0,0,.35);transform:translateY(-1px)}
+    .btn.primary{border-color:#3a3d47;background:linear-gradient(180deg, #1f2130, #181a23);color:#f5f6fa}
+    .btn.accent{background:linear-gradient(180deg, #6c8cff, #4c6bff);border-color:#5a73ff;color:#0d1020}
+    .btn.success{background:linear-gradient(180deg, #28c76f, #21a35a);border-color:#1e9e52;color:#06130d}
+    .btn.danger{background:linear-gradient(180deg, #ff5d5d, #e64b4b);border-color:#d44141;color:#1a0d0d}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      font-size:12px;color:var(--muted);padding:6px 10px;border:1px solid var(--border);
+      border-radius:999px;background:linear-gradient(180deg, var(--bg-2), var(--card));
+    }
+    .grid{
+      display:grid;gap:20px
+    }
+    @media(min-width:800px){ .grid.cols-3{grid-template-columns:repeat(3,1fr)} }
+    @media(min-width:800px){ .grid.cols-2{grid-template-columns:repeat(2,1fr)} }
+    .card{
+      background:linear-gradient(180deg, var(--card), var(--bg-3));
+      border:1px solid var(--border);border-radius:var(--radius);
+      box-shadow:var(--shadow);overflow:hidden;
+    }
+    .card-header{padding:16px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .card-body{padding:16px}
+    .card-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap}
+    .hero{
+      display:grid;gap:20px;align-items:center;padding:24px
+    }
+    @media(min-width:900px){ .hero{grid-template-columns:1.2fr .8fr} }
+    .hero h1{margin:0;font-size:clamp(28px,4vw,42px)}
+    .sub{color:var(--muted)}
+    .search{
+      display:flex;gap:8px;margin-top:14px
+    }
+    .input, select, textarea{
+      width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);
+      background:linear-gradient(180deg, var(--bg-2), var(--card));color:var(--text);
+      outline:none;transition:.2s border-color,.2s box-shadow
+    }
+    .input::placeholder{color:#8b8d96}
+    .input:focus, select:focus, textarea:focus{border-color:#3a3d47;box-shadow:0 0 0 4px rgba(108,140,255,.15)}
+    .product{
+      display:flex;flex-direction:column;gap:12px
+    }
+    .product img{
+      border-radius:12px;border:1px solid var(--border);
+      background:linear-gradient(180deg, #0d0e12, #161720);
+    }
+    .price{font-weight:700}
+    .muted{color:var(--muted)}
+    .pill{border:1px solid var(--border);border-radius:999px;padding:6px 10px;color:var(--muted);display:inline-block}
+    .flex{display:flex;gap:10px;align-items:center}
+    .spaced{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .hidden{display:none !important}
+    footer{
+      margin-top:40px;padding:24px;border-top:1px solid var(--border);color:var(--muted);background:linear-gradient(180deg, var(--bg-2), var(--bg-3))
+    }
+    .table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .table th,.table td{padding:12px;border-bottom:1px solid var(--border);text-align:left}
+    .kpi{
+      display:grid;gap:16px;
+    }
+    @media(min-width:800px){ .kpi{grid-template-columns:repeat(4,1fr)} }
+    .kpi .card-body{display:flex;flex-direction:column;gap:6px}
+    .avatar{
+      width:36px;height:36px;border-radius:50%;
+      background:linear-gradient(180deg,#23252e,#171821);border:1px solid var(--border)
+    }
+    .toast{
+      position:fixed;right:18px;bottom:18px;z-index:30;
+      background:linear-gradient(180deg, #1b1d25, #14151b);
+      border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:12px;box-shadow:var(--shadow)
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <div>EZ DROPP</div>
+          <div class="muted" style="font-size:12px">Buy • Sell • Dropship</div>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <button class="btn" id="toggleTheme">Theme</button>
+        <button class="btn" id="viewCartBtn">Cart</button>
+        <button class="btn primary" id="loginBtn">Login</button>
+        <button class="btn danger hidden" id="logoutBtn">Logout</button>
+        <div class="badge"><span id="userBadge">Guest</span></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero card">
+      <div class="card-body">
+        <h1>Elevate your hustle with EZ DROPP</h1>
+        <p class="sub">A modern, black–gray marketplace where you can list, discover, and buy products—fast. Inspired by Shopify & OLX, built uniquely.</p>
+        <div class="search">
+          <input class="input" id="searchInput" placeholder="Search products, categories, or sellers…" />
+          <button class="btn accent" id="searchBtn">Search</button>
+        </div>
+        <div class="flex" style="margin-top:10px">
+          <span class="pill">Secure checkout</span>
+          <span class="pill">Seller tools</span>
+          <span class="pill">Dark luxury UI</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="grid cols-2">
+          <div class="card">
+            <div class="card-header"><strong>Quick stats</strong><span class="muted">Live</span></div>
+            <div class="card-body kpi">
+              <div class="card"><div class="card-body"><span class="muted">Users</span><span id="kpiUsers" class="price">1</span></div></div>
+              <div class="card"><div class="card-body"><span class="muted">Listings</span><span id="kpiListings" class="price">3</span></div></div>
+              <div class="card"><div class="card-body"><span class="muted">In cart</span><span id="kpiCart" class="price">0</span></div></div>
+              <div class="card"><div class="card-body"><span class="muted">Orders</span><span id="kpiOrders" class="price">0</span></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><strong>Sell your item</strong><span class="muted">Post a listing</span></div>
+            <div class="card-body">
+              <form id="sellForm" class="grid" style="gap:12px">
+                <input class="input" id="sellTitle" placeholder="Title (e.g., Premium Hoodie)" required />
+                <textarea class="input" id="sellDesc" placeholder="Short description" required></textarea>
+                <div class="grid cols-2">
+                  <input class="input" id="sellPrice" type="number" min="0" step="0.01" placeholder="Price" required />
+                  <input class="input" id="sellImage" type="url" placeholder="Image URL (https://…)" required />
+                </div>
+                <select id="sellCategory" class="input">
+                  <option value="Fashion">Fashion</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Home">Home</option>
+                </select>
+                <button class="btn success" type="submit">Publish listing</button>
+              </form>
+              <p class="muted" style="margin-top:8px">No backend needed—your listing saves locally for demo.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:24px">
+      <div class="card-header spaced">
+        <strong>Featured products</strong>
+        <div class="flex">
+          <span class="pill">Curated</span>
+          <span class="pill">3 items</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="productGrid" class="grid cols-3"></div>
+      </div>
+    </section>
+
+    <section id="cartSection" class="card hidden" style="margin-top:24px">
+      <div class="card-header"><strong>Your cart</strong><span class="muted">Review & checkout</span></div>
+      <div class="card-body">
+        <table class="table" id="cartTable">
+          <thead>
+            <tr><th>Item</th><th>Price</th><th>Qty</th><th>Total</th><th>Action</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="card-footer spaced">
+        <div class="muted">Subtotal: <span id="cartSubtotal" class="price">$0.00</span></div>
+        <div class="flex">
+          <button class="btn" id="clearCart">Clear</button>
+          <button class="btn accent" id="checkoutBtn">Checkout</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="ordersSection" class="card hidden" style="margin-top:24px">
+      <div class="card-header"><strong>Your orders</strong><span class="muted">History</span></div>
+      <div class="card-body">
+        <table class="table" id="ordersTable">
+          <thead><tr><th>Order #</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container">
+    <div class="spaced">
+      <div>
+        <div class="flex">
+          <div class="avatar"></div>
+          <div>
+            <strong>EZ DROPP</strong><br />
+            <span class="muted">Owned by Abdullah — Modern black/gray marketplace UI</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex">
+        <span class="pill">Terms</span>
+        <span class="pill">Privacy</span>
+        <span class="pill">Support</span>
+      </div>
+    </div>
+    <div class="muted" style="margin-top:8px">Demo build — client-side only. Connect to your backend for production.</div>
+  </footer>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    // ---- Demo data: 3 featured products ----
+    const featured = [
+      {
+        id:"p-hoodie-01",
+        title:"EZ Signature Hoodie",
+        desc:"Luxury black/gray hoodie with minimalist embroidery.",
+        price:59.00,
+        image:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop",
+        category:"Fashion"
+      },
+      {
+        id:"p-headphones-01",
+        title:"Nebula ANC Headphones",
+        desc:"Deep bass, sleek matte finish, advanced noise cancelling.",
+        price:129.00,
+        image:"https://images.unsplash.com/photo-1518443893-6f6a8f1b83f2?q=80&w=1200&auto=format&fit=crop",
+        category:"Electronics"
+      },
+      {
+        id:"p-lamp-01",
+        title:"MonoGlow Desk Lamp",
+        desc:"Adjustable LED, soft gray tone, perfect for late hustles.",
+        price:39.00,
+        image:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200&auto=format&fit=crop",
+        category:"Home"
+      }
+    ];
+
+    // ---- State (saved in localStorage) ----
+    const store = {
+      get key(){ return "ezdropp-store-v1"; },
+      get data(){
+        const raw = localStorage.getItem(this.key);
+        return raw ? JSON.parse(raw) : { user:null, cart:[], listings:[...featured], orders:[] };
+      },
+      set data(val){ localStorage.setItem(this.key, JSON.stringify(val)); }
+    };
+
+    // ---- Utilities ----
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    const format = n => `$${n.toFixed(2)}`;
+    function toast(msg,type="info"){
+      const t = $("#toast");
+      t.textContent = msg;
+      t.classList.remove("hidden");
+      t.style.borderColor = type==="success" ? "#1e9e52" : type==="error" ? "#d44141" : "var(--border)";
+      setTimeout(()=>t.classList.add("hidden"), 2500);
+    }
+
+    // ---- Render featured products ----
+    function renderProducts(){
+      const grid = $("#productGrid");
+      grid.innerHTML = "";
+      const { listings } = store.data;
+      listings.forEach(p=>{
+        const card = document.createElement("div");
+        card.className = "card product";
+        card.innerHTML = `
+          <div class="card-body">
+            <img src="${p.image}" alt="${p.title}" />
+            <div class="spaced">
+              <div>
+                <strong>${p.title}</strong>
+                <div class="muted">${p.desc}</div>
+                <div class="flex" style="margin-top:8px">
+                  <span class="pill">${p.category}</span>
+                </div>
+              </div>
+              <div class="price">${format(p.price)}</div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn accent" data-id="${p.id}" data-action="add">Add to cart</button>
+            <button class="btn" data-id="${p.id}" data-action="buy">Buy now</button>
+            <button class="btn" data-id="${p.id}" data-action="save">Save</button>
+            <button class="btn" data-id="${p.id}" data-action="share">Share</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // ---- Cart rendering ----
+    function renderCart(){
+      const tbody = $("#cartTable tbody");
+      const data = store.data;
+      tbody.innerHTML = "";
+      let subtotal = 0;
+      data.cart.forEach((line,i)=>{
+        const total = line.price * line.qty;
+        subtotal += total;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${line.title}</td>
+          <td>${format(line.price)}</td>
+          <td>
+            <div class="flex">
+              <button class="btn" data-idx="${i}" data-action="dec">-</button>
+              <span style="min-width:24px;text-align:center">${line.qty}</span>
+              <button class="btn" data-idx="${i}" data-action="inc">+</button>
+            </div>
+          </td>
+          <td>${format(total)}</td>
+          <td><button class="btn danger" data-idx="${i}" data-action="remove">Remove</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      $("#cartSubtotal").textContent = format(subtotal);
+      $("#kpiCart").textContent = data.cart.reduce((a,c)=>a+c.qty,0);
+    }
+
+    // ---- Orders rendering ----
+    function renderOrders(){
+      const tbody = $("#ordersTable tbody");
+      const { orders } = store.data;
+      tbody.innerHTML = "";
+      orders.forEach(o=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>#${o.id}</td>
+          <td>${o.items.map(i=>`${i.title} × ${i.qty}`).join(", ")}</td>
+          <td>${format(o.total)}</td>
+          <td><span class="pill">Paid</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      $("#kpiOrders").textContent = orders.length;
+    }
+
+    // ---- KPIs ----
+    function renderKPIs(){
+      const data = store.data;
+      $("#kpiUsers").textContent = data.user ? 1 : 1; // demo
+      $("#kpiListings").textContent = data.listings.length;
+      $("#kpiCart").textContent = data.cart.reduce((a,c)=>a+c.qty,0);
+    }
+
+    // ---- Auth (demo only) ----
+    function login(){
+      const name = prompt("Enter username (demo):", "abdullah");
+      if(!name){ toast("Login cancelled"); return; }
+      const data = store.data;
+      data.user = { name };
+      store.data = data;
+      $("#userBadge").textContent = name;
+      $("#loginBtn").classList.add("hidden");
+      $("#logoutBtn").classList.remove("hidden");
+      toast(`Welcome, ${name}`, "success");
+      renderKPIs();
+    }
+    function logout(){
+      const data = store.data;
+      data.user = null;
+      store.data = data;
+      $("#userBadge").textContent = "Guest";
+      $("#loginBtn").classList.remove("hidden");
+      $("#logoutBtn").classList.add("hidden");
+      toast("Logged out");
+      renderKPIs();
+    }
+
+    // ---- Theme toggle (subtle depth) ----
+    let altTheme = false;
+    function toggleTheme(){
+      altTheme = !altTheme;
+      document.documentElement.style.setProperty("--accent", altTheme ? "#ff8c6c" : "#6c8cff");
+      document.documentElement.style.setProperty("--accent-2", altTheme ? "#00d1b2" : "#28c76f");
+      toast("Theme updated");
+    }
+
+    // ---- Sell form ----
+    $("#sellForm").addEventListener("submit", e=>{
+      e.preventDefault();
+      const title = $("#sellTitle").value.trim();
+      const desc  = $("#sellDesc").value.trim();
+      const price = parseFloat($("#sellPrice").value);
+      const image = $("#sellImage").value.trim();
+      const category = $("#sellCategory").value;
+      if(!title || !desc || !image || isNaN(price)){ toast("Please fill all fields", "error"); return; }
+      const data = store.data;
+      const id = "p-"+Math.random().toString(36).slice(2,7);
+      data.listings.unshift({ id, title, desc, price, image, category });
+      store.data = data;
+      renderProducts();
+      renderKPIs();
+      e.target.reset();
+      toast("Listing published", "success");
+    });
+
+    // ---- Product actions ----
+    $("#productGrid").addEventListener("click", e=>{
+      const btn = e.target.closest("button");
+      if(!btn) return;
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
+      const data = store.data;
+      const product = data.listings.find(p=>p.id===id);
+      if(!product) return;
+
+      if(action==="add"){
+        const line = data.cart.find(l=>l.id===id);
+        if(line) line.qty += 1;
+        else data.cart.push({ id, title:product.title, price:product.price, qty:1 });
+        store.data = data;
+        renderCart(); renderKPIs();
+        $("#cartSection").classList.remove("hidden");
+        toast("Added to cart", "success");
+      }
+      if(action==="buy"){
+        // Quick checkout: single-item order
+        const order = {
+          id: Math.floor(100000 + Math.random()*899999),
+          items:[{ title:product.title, qty:1, price:product.price }],
+          total: product.price,
+          date: new Date().toISOString()
+        };
+        data.orders.unshift(order);
+        store.data = data;
+        renderOrders(); renderKPIs();
+        $("#ordersSection").classList.remove("hidden");
+        toast("Order placed (demo)", "success");
+      }
+      if(action==="save"){ toast("Saved for later"); }
+      if(action==="share"){
+        navigator.clipboard?.writeText(location.href).then(()=>toast("Link copied")).catch(()=>toast("Copy failed","error"));
+      }
+    });
+
+    // ---- Cart actions ----
+    $("#cartTable").addEventListener("click", e=>{
+      const btn = e.target.closest("button");
+      if(!btn) return;
+      const idx = parseInt(btn.dataset.idx);
+      const action = btn.dataset.action;
+      const data = store.data;
+      const line = data.cart[idx];
+      if(!line) return;
+
+      if(action==="inc"){ line.qty += 1; }
+      if(action==="dec"){ line.qty = Math.max(1, line.qty - 1); }
+      if(action==="remove"){ data.cart.splice(idx,1); }
+      store.data = data;
+      renderCart(); renderKPIs();
+    });
+
+    $("#clearCart").addEventListener("click", ()=>{
+      const data = store.data; data.cart = []; store.data = data;
+      renderCart(); renderKPIs(); toast("Cart cleared");
+    });
+
+    $("#checkoutBtn").addEventListener("click", ()=>{
+      const data = store.data;
+      if(data.cart.length===0){ toast("Cart is empty","error"); return; }
+      const total = data.cart.reduce((s,l)=>s+l.price*l.qty,0);
+      const order = {
+        id: Math.floor(100000 + Math.random()*899999),
+        items: data.cart.map(l=>({ title:l.title, qty:l.qty, price:l.price })),
+        total, date: new Date().toISOString()
+      };
+      data.orders.unshift(order);
+      data.cart = [];
+      store.data = data;
+      renderCart(); renderOrders(); renderKPIs();
+      $("#ordersSection").classList.remove("hidden");
+      toast("Checkout complete (demo)","success");
+    });
+
+    // ---- Search ----
+    $("#searchBtn").addEventListener("click", ()=>{
+      const q = $("#searchInput").value.toLowerCase().trim();
+      const grid = $("#productGrid");
+      const { listings } = store.data;
+      const results = listings.filter(p=>
+        p.title.toLowerCase().includes(q) ||
+        p.desc.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q)
+      );
+      grid.innerHTML = "";
+      results.forEach(p=>{
+        const card = document.createElement("div");
+        card.className = "card product";
+        card.innerHTML = `
+          <div class="card-body">
+            <img src="${p.image}" alt="${p.title}" />
+            <div class="spaced">
+              <div>
+                <strong>${p.title}</strong>
+                <div class="muted">${p.desc}</div>
+                <div class="flex" style="margin-top:8px"><span class="pill">${p.category}</span></div>
+              </div>
+              <div class="price">${format(p.price)}</div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn accent" data-id="${p.id}" data-action="add">Add to cart</button>
+            <button class="btn" data-id="${p.id}" data-action="buy">Buy now</button>
+            <button class="btn" data-id="${p.id}" data-action="save">Save</button>
+            <button class="btn" data-id="${p.id}" data-action="share">Share</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+      toast(results.length ? `Found ${results.length} result(s)` : "No results", results.length ? "success":"error");
+    });
+
+    // ---- Header buttons ----
+    $("#viewCartBtn").addEventListener("click", ()=>{
+      $("#cartSection").classList.toggle("hidden");
+    });
+    $("#loginBtn").addEventListener("click", login);
+    $("#logoutBtn").addEventListener("click", logout);
+    $("#toggleTheme").addEventListener("click", toggleTheme);
+
+    // ---- Init ----
+    (function init(){
+      renderProducts();
+      renderCart();
+      renderOrders();
+      renderKPIs();
+      const data = store.data;
+      if(data.user){
+        $("#userBadge").textContent = data.user.name;
+        $("#loginBtn").classList.add("hidden");
+        $("#logoutBtn").classList.remove("hidden");
+      }
+    })();
+  </script>
+</body>
+</html>
